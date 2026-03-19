@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teshwin & Fanny — 26 February 2028</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400&family=Noto+Sans+Tamil:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #C8762A;
+    --saffron-light: #E8A45A;
+    --burgundy: #7B2D3E;
+    --burgundy-light: #A84D60;
+    --gold: #D4AF6A;
+    --gold-light: #EDD08A;
+    --cream: #FAF5EC;
+    --deep: #1C1008;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Jost', sans-serif;
+    --font-tamil: 'Noto Sans Tamil', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--cream);
+    color: var(--deep);
+    font-family: var(--font-body);
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* Tamil script uses its own font */
+  [lang="ta"], .lang-ta { font-family: var(--font-tamil) !important; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 12px;
+    border: 1px solid rgba(200,118,42,0.25);
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  /* ══════════════════════════════════════
+     MUSIC PLAYER
+  ══════════════════════════════════════ */
+  .music-btn {
+    position: fixed;
+    bottom: 32px;
+    left: 32px;
+    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    background: rgba(28,16,8,0.85);
+    border: 1px solid rgba(212,175,106,0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s ease, transform 0.2s ease;
+    animation: fadeUp 1s ease 2s both;
+    opacity: 0;
+  }
+
+  .music-btn:hover {
+    border-color: rgba(212,175,106,0.7);
+    transform: scale(1.08);
+  }
+
+  .music-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--gold);
+    transition: opacity 0.2s ease;
+  }
+
+  /* Pulsing ring when music is playing */
+  .music-btn.playing::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,175,106,0.25);
+    animation: pulse-ring 2.5s ease-out infinite;
+  }
+
+  .music-btn.playing::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,175,106,0.12);
+    animation: pulse-ring 2.5s ease-out 0.6s infinite;
+  }
+
+  .music-tooltip {
+    position: absolute;
+    left: 58px;
+    bottom: 50%;
+    transform: translateY(50%);
+    background: rgba(28,16,8,0.9);
+    border: 1px solid rgba(212,175,106,0.2);
+    padding: 6px 12px;
+    white-space: nowrap;
+    font-family: var(--font-body);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(212,175,106,0.7);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .music-btn:hover .music-tooltip { opacity: 1; }
+
+  /* Volume fade-in on unmute */
+  @keyframes pulse-ring {
+    0%   { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  /* ══════════════════════════════════════
+     LANGUAGE SELECTION POPUP
+  ══════════════════════════════════════ */
+  .lang-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(28,16,8,0.92);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: fadeIn 0.6s ease both;
+  }
+
+  .lang-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+
+  .lang-popup {
+    background: var(--deep);
+    border: 1px solid rgba(212,175,106,0.25);
+    padding: 56px 48px 48px;
+    text-align: center;
+    max-width: 460px;
+    width: calc(100% - 48px);
+    position: relative;
+    animation: scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  /* Decorative corner lines on popup */
+  .lang-popup::before, .lang-popup::after {
+    content: '';
+    position: absolute;
+    width: 40px; height: 40px;
+    border-color: rgba(212,175,106,0.3);
+    border-style: solid;
+  }
+  .lang-popup::before { top: 12px; left: 12px; border-width: 1px 0 0 1px; }
+  .lang-popup::after  { bottom: 12px; right: 12px; border-width: 0 1px 1px 0; }
+
+  .popup-ornament {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 0.4em;
+    color: rgba(212,175,106,0.4);
+    margin-bottom: 20px;
+  }
+
+  .popup-title {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--gold);
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+
+  .popup-subtitle {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(250,245,236,0.35);
+    margin-bottom: 40px;
+  }
+
+  .popup-prompt {
+    font-family: var(--font-body);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(212,175,106,0.6);
+    margin-bottom: 24px;
+  }
+
+  .popup-langs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .popup-lang-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(212,175,106,0.15);
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease;
+    text-align: left;
+    width: 100%;
+  }
+
+  .popup-lang-btn:hover {
+    background: rgba(212,175,106,0.08);
+    border-color: rgba(212,175,106,0.4);
+  }
+
+  .popup-lang-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  .popup-lang-native {
+    font-size: 13px;
+    color: rgba(250,245,236,0.4);
+    margin-top: 3px;
+  }
+
+  .popup-lang-native.tamil { font-family: var(--font-tamil); font-size: 15px; }
+  .popup-lang-native.french { font-family: var(--font-display); font-style: italic; }
+
+  .popup-lang-flag {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .popup-skip {
+    font-family: var(--font-body);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(250,245,236,0.2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 28px;
+    display: inline-block;
+    transition: color 0.2s ease;
+  }
+  .popup-skip:hover { color: rgba(250,245,236,0.45); }
+
+  /* ══════════════════════════════════════
+     LANGUAGE TOGGLE BAR (top-right)
+  ══════════════════════════════════════ */
+  .lang-toggle {
+    position: fixed;
+    top: 28px;
+    right: 32px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    background: rgba(28,16,8,0.85);
+    border: 1px solid rgba(212,175,106,0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .lang-btn {
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(212,175,106,0.45);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px 13px;
+    transition: color 0.25s ease, background 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .lang-btn.active {
+    color: var(--deep);
+    background: var(--gold);
+    font-weight: 400;
+  }
+
+  .lang-btn:not(.active):hover { color: rgba(212,175,106,0.9); }
+
+  .lang-sep {
+    width: 1px;
+    height: 20px;
+    background: rgba(212,175,106,0.2);
+    flex-shrink: 0;
+  }
+
+  /* Tamil label in toggle uses Tamil font */
+  #btn-ta { font-family: var(--font-tamil); font-size: 12px; letter-spacing: 0; padding: 9px 13px; }
+
+  /* ══════════════════════════════════════
+     HERO
+  ══════════════════════════════════════ */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 24px;
+    background: var(--deep);
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 50%, rgba(123,45,62,0.55) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(200,118,42,0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 80% 80% at 50% 100%, rgba(212,175,106,0.2) 0%, transparent 60%);
+  }
+
+  .hero-ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(212,175,106,0.15); pointer-events: none;
+  }
+  .hero-ring:nth-child(1) { width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%); }
+  .hero-ring:nth-child(2) { width:800px;height:800px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(200,118,42,0.1); }
+  .hero-ring:nth-child(3) { width:1000px;height:1000px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(212,175,106,0.06); }
+
+  .corner { position:absolute;width:80px;height:80px;pointer-events:none; }
+  .corner svg { width:100%;height:100%; }
+  .corner-tl { top:28px;left:28px; }
+  .corner-tr { top:28px;right:28px;transform:scaleX(-1); }
+  .corner-bl { bottom:28px;left:28px;transform:scaleY(-1); }
+  .corner-br { bottom:28px;right:28px;transform:scale(-1); }
+
+  .hero-content { position:relative;text-align:center;z-index:2; }
+
+  .hero-pre {
+    font-family: var(--font-body);
+    font-weight: 200; font-size: 11px;
+    letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 1s ease 0.3s both;
+  }
+  .hero-pre.ta { font-family: var(--font-tamil); letter-spacing: 0.05em; font-size: 13px; }
+
+  .hero-names {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: clamp(64px,12vw,112px); line-height: 0.9;
+    color: var(--cream); letter-spacing: -0.01em;
+    opacity: 0; animation: fadeUp 1s ease 0.5s both;
+  }
+  .hero-names .amp { font-style:italic;color:var(--gold);font-size:0.7em;display:block;line-height:1.2; }
+
+  .hero-divider {
+    display:flex;align-items:center;gap:16px;justify-content:center;
+    margin:32px 0;opacity:0;animation:fadeUp 1s ease 0.7s both;
+  }
+  .hero-divider-line { width:80px;height:1px;background:linear-gradient(to right,transparent,var(--gold)); }
+  .hero-divider-line:last-child { background:linear-gradient(to left,transparent,var(--gold)); }
+  .hero-divider-diamond { width:6px;height:6px;background:var(--gold);transform:rotate(45deg); }
+
+  .hero-date {
+    font-family: var(--font-display); font-size: clamp(16px,3vw,22px);
+    font-weight: 300; color: var(--cream); letter-spacing: 0.12em;
+    opacity: 0; animation: fadeUp 1s ease 0.9s both;
+  }
+  .hero-date.ta { font-family: var(--font-tamil); font-size: clamp(14px,2.5vw,18px); letter-spacing: 0.02em; }
+
+  .hero-location {
+    font-family: var(--font-body); font-weight: 200; font-size: 11px;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--saffron-light); margin-top: 12px;
+    opacity: 0; animation: fadeUp 1s ease 1.1s both;
+  }
+
+  .hero-scroll {
+    position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    color:rgba(212,175,106,0.5);font-size:9px;letter-spacing:0.3em;text-transform:uppercase;
+    font-family:var(--font-body);
+    animation:fadeUp 1s ease 1.5s both,bob 2s ease-in-out 2.5s infinite;
+  }
+  .hero-scroll::after { content:'';width:1px;height:40px;background:linear-gradient(to bottom,rgba(212,175,106,0.4),transparent); }
+  .hero-scroll.ta { font-family:var(--font-tamil);letter-spacing:0.05em; }
+
+  /* ══════════════════════════════════════
+     SECTIONS COMMON
+  ══════════════════════════════════════ */
+  section { padding:96px 24px;max-width:860px;margin:0 auto; }
+
+  .section-label {
+    font-family:var(--font-body);font-size:10px;font-weight:300;
+    letter-spacing:0.4em;text-transform:uppercase;
+    color:var(--saffron);margin-bottom:16px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-label::before { content:'';width:32px;height:1px;background:var(--saffron); }
+  .section-label.ta { font-family:var(--font-tamil);letter-spacing:0.05em;font-size:12px; }
+
+  .section-title {
+    font-family:var(--font-display);font-size:clamp(40px,7vw,64px);
+    font-weight:300;line-height:1;color:var(--deep);margin-bottom:48px;
+  }
+  .section-title em { font-style:italic;color:var(--burgundy); }
+  .section-title.ta { font-family:var(--font-tamil);font-size:clamp(28px,5vw,48px);line-height:1.2; }
+
+  /* ══════════════════════════════════════
+     STORY
+  ══════════════════════════════════════ */
+  .story-section { display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start; }
+  @media(max-width:640px){.story-section{grid-template-columns:1fr;gap:40px;}}
+
+  .story-text { font-size:15px;line-height:1.9;color:#3a2a1a;font-weight:300; }
+  .story-text.ta { font-family:var(--font-tamil);font-size:14px;line-height:2.1; }
+  .story-text p+p { margin-top:20px; }
+
+  .story-aside { padding:40px;background:var(--burgundy);position:relative;overflow:hidden; }
+  .story-aside::before {
+    content:'"';position:absolute;top:-20px;left:16px;
+    font-family:var(--font-display);font-size:160px;
+    color:rgba(255,255,255,0.06);line-height:1;pointer-events:none;
+  }
+
+  .story-quote {
+    font-family:var(--font-display);font-style:italic;
+    font-size:24px;line-height:1.4;color:var(--cream);position:relative;z-index:1;
+  }
+  .story-quote.ta { font-family:var(--font-tamil);font-style:normal;font-size:18px;line-height:1.7; }
+  .story-quote-attr { font-family:var(--font-body);font-size:10px;letter-spacing:0.3em;color:var(--gold-light);text-transform:uppercase;margin-top:20px;display:block; }
+
+  /* ══════════════════════════════════════
+     DETAILS BAND
+  ══════════════════════════════════════ */
+  .details-band { background:var(--deep);max-width:100%;padding:64px 24px; }
+  .details-inner { max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px; }
+  @media(max-width:640px){.details-inner{grid-template-columns:1fr;}}
+
+  .detail-card { background:rgba(255,255,255,0.03);border:1px solid rgba(212,175,106,0.12);padding:40px 32px;text-align:center; }
+  .detail-card:first-child { border-right:none; }
+  .detail-card:last-child { border-left:none; }
+  .detail-icon { font-size:22px;margin-bottom:20px;display:block;color:var(--gold);font-family:var(--font-display);font-style:italic; }
+  .detail-label { font-family:var(--font-body);font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--saffron-light);margin-bottom:10px; }
+  .detail-label.ta { font-family:var(--font-tamil);letter-spacing:0.05em;font-size:11px; }
+  .detail-value { font-family:var(--font-display);font-size:22px;font-weight:300;color:var(--cream);line-height:1.3; }
+  .detail-value.ta { font-family:var(--font-tamil);font-size:18px;line-height:1.5; }
+  .detail-sub { font-family:var(--font-body);font-size:11px;color:rgba(250,245,236,0.45);margin-top:8px;line-height:1.5; }
+  .detail-sub.ta { font-family:var(--font-tamil);font-size:12px; }
+
+  /* ══════════════════════════════════════
+     SCHEDULE
+  ══════════════════════════════════════ */
+  .schedule-list { display:flex;flex-direction:column; }
+  .schedule-item { display:grid;grid-template-columns:100px 1fr;gap:32px;padding:28px 0;border-bottom:1px solid rgba(200,118,42,0.15);align-items:start; }
+  .schedule-item:first-child { border-top:1px solid rgba(200,118,42,0.15); }
+  .schedule-time { font-family:var(--font-display);font-size:18px;font-weight:300;color:var(--saffron);padding-top:2px; }
+  .schedule-name { font-family:var(--font-display);font-size:22px;font-weight:400;color:var(--deep);line-height:1.2; }
+  .schedule-name.ta { font-family:var(--font-tamil);font-size:18px;line-height:1.4; }
+  .schedule-desc { font-family:var(--font-body);font-size:13px;font-weight:300;color:#7a6050;margin-top:6px;line-height:1.6; }
+  .schedule-desc.ta { font-family:var(--font-tamil);font-size:13px;line-height:1.9; }
+
+  /* ══════════════════════════════════════
+     DRESS CODE
+  ══════════════════════════════════════ */
+  .dresscode-section { background:linear-gradient(135deg,rgba(123,45,62,0.06) 0%,rgba(200,118,42,0.06) 100%);padding:64px;border:1px solid rgba(200,118,42,0.2);position:relative;overflow:hidden; }
+  @media(max-width:640px){.dresscode-section{padding:40px 24px;}}
+  .dresscode-section::after { content:'✦';position:absolute;right:40px;bottom:20px;font-size:80px;color:rgba(200,118,42,0.06);font-family:var(--font-display); }
+  .dresscode-grid { display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px; }
+  @media(max-width:640px){.dresscode-grid{grid-template-columns:1fr;}}
+  .dresscode-item h4 { font-family:var(--font-display);font-size:20px;font-weight:400;color:var(--burgundy);margin-bottom:8px; }
+  .dresscode-item h4.ta { font-family:var(--font-tamil);font-size:17px; }
+  .dresscode-item p { font-family:var(--font-body);font-size:13px;color:#5a3a28;line-height:1.7; }
+  .dresscode-item p.ta { font-family:var(--font-tamil);font-size:13px;line-height:2; }
+
+  /* ══════════════════════════════════════
+     GALLERY
+  ══════════════════════════════════════ */
+  .gallery-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:3px; }
+  @media(max-width:640px){.gallery-grid{grid-template-columns:repeat(2,1fr);}}
+  .gallery-item { aspect-ratio:1;background:var(--deep);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+  .gallery-item:first-child { grid-column:span 2;aspect-ratio:2/1; }
+  .gallery-item-bg { position:absolute;inset:0; }
+  .gallery-item:nth-child(1) .gallery-item-bg { background:radial-gradient(ellipse at 30% 60%,rgba(123,45,62,0.7),rgba(28,16,8,0.9)); }
+  .gallery-item:nth-child(2) .gallery-item-bg { background:radial-gradient(ellipse at 70% 30%,rgba(200,118,42,0.6),rgba(28,16,8,0.9)); }
+  .gallery-item:nth-child(3) .gallery-item-bg { background:radial-gradient(ellipse at 40% 70%,rgba(123,45,62,0.5),rgba(28,16,8,0.9)); }
+  .gallery-item:nth-child(4) .gallery-item-bg { background:radial-gradient(ellipse at 60% 40%,rgba(212,175,106,0.4),rgba(28,16,8,0.9)); }
+  .gallery-label { position:relative;z-index:1;font-family:var(--font-body);font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(250,245,236,0.4); }
+  .gallery-label.ta { font-family:var(--font-tamil);letter-spacing:0.05em;font-size:11px; }
+
+  /* ══════════════════════════════════════
+     RSVP
+  ══════════════════════════════════════ */
+  .rsvp-section { background:var(--burgundy);max-width:100%;padding:96px 24px; }
+  .rsvp-inner { max-width:680px;margin:0 auto; }
+  .rsvp-section .section-label { color:var(--gold-light); }
+  .rsvp-section .section-label::before { background:var(--gold-light); }
+  .rsvp-section .section-title { color:var(--cream); }
+  .rsvp-section .section-title em { color:var(--gold-light); }
+  .rsvp-deadline { font-family:var(--font-body);font-size:12px;letter-spacing:0.2em;color:rgba(250,245,236,0.5);text-transform:uppercase;margin-bottom:48px; }
+  .rsvp-deadline.ta { font-family:var(--font-tamil);letter-spacing:0.05em;font-size:13px; }
+  .rsvp-embed { background:rgba(0,0,0,0.2);border:1px solid rgba(212,175,106,0.2);min-height:520px;display:flex;align-items:center;justify-content:center; }
+  .rsvp-embed-placeholder { text-align:center;padding:64px 40px; }
+  .rsvp-embed-placeholder p { font-family:var(--font-body);font-size:12px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(250,245,236,0.35);margin-bottom:16px; }
+  .embed-code { font-family:monospace;font-size:11px;color:rgba(212,175,106,0.5);background:rgba(0,0,0,0.3);padding:16px 20px;display:block;text-align:left;line-height:1.7;white-space:pre;overflow-x:auto; }
+
+  /* ══════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════ */
+  footer { background:var(--deep);padding:56px 24px;text-align:center;border-top:1px solid rgba(212,175,106,0.1); }
+  .footer-names { font-family:var(--font-display);font-style:italic;font-size:32px;font-weight:300;color:var(--gold);margin-bottom:12px; }
+  .footer-sub { font-family:var(--font-body);font-size:10px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(250,245,236,0.25); }
+  .footer-sub.ta { font-family:var(--font-tamil);letter-spacing:0.05em; }
+
+  .ornament { text-align:center;color:var(--gold);font-size:18px;letter-spacing:0.4em;opacity:0.5;padding:8px 0;font-family:var(--font-display); }
+
+  /* ══════════════════════════════════════
+     ANIMATIONS
+  ══════════════════════════════════════ */
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+  @keyframes scaleIn  { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+  @keyframes bob      { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+  .reveal { opacity:0;transform:translateY(32px);transition:opacity 0.9s ease,transform 0.9s ease; }
+  .reveal.visible { opacity:1;transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     BACKGROUND MUSIC
+══════════════════════════════════════ -->
+<audio id="bg-music" loop preload="auto">
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Music play/pause button -->
+<button class="music-btn" id="music-btn" onclick="toggleMusic()" aria-label="Toggle background music">
+  <!-- Play icon (shown when paused) -->
+  <svg id="icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 5v14l11-7z"/>
+  </svg>
+  <!-- Pause icon (hidden when paused) -->
+  <svg id="icon-pause" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+  </svg>
+  <span class="music-tooltip" id="music-tooltip">Play music</span>
+</button>
+
+
+<!-- ══════════════════════════════════════
+     LANGUAGE SELECTION POPUP
+══════════════════════════════════════ -->
+<div class="lang-overlay" id="lang-overlay" role="dialog" aria-modal="true" aria-label="Choose your language">
+  <div class="lang-popup">
+    <div class="popup-ornament">✦ ◈ ✦</div>
+    <p class="popup-title">Teshwin &amp; Fanny</p>
+    <p class="popup-subtitle">26 February 2028 · Port Dickson</p>
+    <p class="popup-prompt">Please choose your language</p>
+
+    <div class="popup-langs">
+      <button class="popup-lang-btn" onclick="chooseLang('en')">
+        <div>
+          <div class="popup-lang-name">English</div>
+          <div class="popup-lang-native">Welcome to our wedding</div>
+        </div>
+        <span class="popup-lang-flag">🇬🇧</span>
+      </button>
+      <button class="popup-lang-btn" onclick="chooseLang('fr')">
+        <div>
+          <div class="popup-lang-name">Français</div>
+          <div class="popup-lang-native french">Bienvenue à notre mariage</div>
+        </div>
+        <span class="popup-lang-flag">🇫🇷</span>
+      </button>
+      <button class="popup-lang-btn" onclick="chooseLang('ta')">
+        <div>
+          <div class="popup-lang-name">தமிழ்</div>
+          <div class="popup-lang-native tamil">எங்கள் திருமணத்திற்கு வரவேற்கிறோம்</div>
+        </div>
+        <span class="popup-lang-flag">🇮🇳</span>
+      </button>
+    </div>
+
+    <button class="popup-skip" onclick="chooseLang('en')">Continue in English</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     LANGUAGE TOGGLE BAR
+══════════════════════════════════════ -->
+<div class="lang-toggle" role="group" aria-label="Language selector">
+  <button class="lang-btn active" id="btn-en" onclick="setLang('en')" aria-pressed="true">EN</button>
+  <div class="lang-sep"></div>
+  <button class="lang-btn" id="btn-fr" onclick="setLang('fr')" aria-pressed="false">FR</button>
+  <div class="lang-sep"></div>
+  <button class="lang-btn" id="btn-ta" onclick="setLang('ta')" aria-pressed="false">தமிழ்</button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-ring"></div><div class="hero-ring"></div><div class="hero-ring"></div>
+
+  <div class="corner corner-tl">
+    <svg viewBox="0 0 80 80" fill="none">
+      <path d="M4 76 L4 4 L76 4" stroke="rgba(212,175,106,0.35)" stroke-width="1"/>
+      <path d="M4 40 Q4 4 40 4" stroke="rgba(212,175,106,0.2)" stroke-width="0.5" fill="none"/>
+      <circle cx="4" cy="4" r="3" fill="rgba(212,175,106,0.4)"/>
+      <circle cx="4" cy="40" r="2" fill="rgba(212,175,106,0.2)"/>
+      <circle cx="40" cy="4" r="2" fill="rgba(212,175,106,0.2)"/>
+    </svg>
+  </div>
+  <div class="corner corner-tr"><svg viewBox="0 0 80 80" fill="none"><path d="M4 76 L4 4 L76 4" stroke="rgba(212,175,106,0.35)" stroke-width="1"/><circle cx="4" cy="4" r="3" fill="rgba(212,175,106,0.4)"/></svg></div>
+  <div class="corner corner-bl"><svg viewBox="0 0 80 80" fill="none"><path d="M4 76 L4 4 L76 4" stroke="rgba(212,175,106,0.35)" stroke-width="1"/><circle cx="4" cy="4" r="3" fill="rgba(212,175,106,0.4)"/></svg></div>
+  <div class="corner corner-br"><svg viewBox="0 0 80 80" fill="none"><path d="M4 76 L4 4 L76 4" stroke="rgba(212,175,106,0.35)" stroke-width="1"/><circle cx="4" cy="4" r="3" fill="rgba(212,175,106,0.4)"/></svg></div>
+
+  <div class="hero-content">
+    <p class="hero-pre"
+       data-en="We are getting married"
+       data-fr="Nous nous marions"
+       data-ta="நாங்கள் திருமணம் செய்து கொள்கிறோம்">We are getting married</p>
+    <h1 class="hero-names">
+      Teshwin
+      <span class="amp">&amp;</span>
+      Fanny
+    </h1>
+    <div class="hero-divider">
+      <div class="hero-divider-line"></div>
+      <div class="hero-divider-diamond"></div>
+      <div class="hero-divider-diamond" style="background:var(--burgundy-light);width:4px;height:4px;"></div>
+      <div class="hero-divider-diamond"></div>
+      <div class="hero-divider-line"></div>
+    </div>
+    <p class="hero-date"
+       data-en="26 February 2028"
+       data-fr="26 Février 2028"
+       data-ta="26 பிப்ரவரி 2028">26 February 2028</p>
+    <p class="hero-location">Shore House · Port Dickson · Malaysia</p>
+  </div>
+
+  <div class="hero-scroll"
+       data-en="Scroll"
+       data-fr="Défiler"
+       data-ta="கீழே உருட்டவும்">Scroll</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     OUR STORY
+══════════════════════════════════════ -->
+<section id="story">
+  <div class="reveal">
+    <p class="section-label"
+       data-en="Our story"
+       data-fr="Notre histoire"
+       data-ta="எங்கள் காதல் கதை">Our story</p>
+    <h2 class="section-title"
+        data-en="Two worlds,&lt;br&gt;&lt;em&gt;one heart&lt;/em&gt;"
+        data-fr="Deux mondes,&lt;br&gt;&lt;em&gt;un seul cœur&lt;/em&gt;"
+        data-ta="இரண்டு உலகங்கள்,&lt;br&gt;&lt;em&gt;ஒரே இதயம்&lt;/em&gt;">Two worlds,<br><em>one heart</em></h2>
+  </div>
+  <div class="story-section reveal">
+    <div class="story-text">
+      <p data-en="Some love stories begin with a single glance across a room. Teshwin and Fanny's began somewhere between continents — a Malaysian soul and a French spirit finding in each other exactly what the other never knew they were searching for."
+         data-fr="Certaines histoires d'amour commencent par un regard traversant une salle. Celle de Teshwin et Fanny a commencé quelque part entre les continents — une âme malaisienne et un esprit français se découvrant mutuellement exactement ce qu'ils cherchaient sans le savoir."
+         data-ta="சில காதல் கதைகள் ஒரே ஒரு பார்வையில் தொடங்குகின்றன. தேஷ்வின் மற்றும் ஃபேனியின் கதை கண்டங்களுக்கு இடையே தொடங்கியது — ஒரு மலேசிய ஆத்மாவும் ஒரு பிரெஞ்சு உள்ளமும் தாங்கள் தேடுவதை ஒருவரிடம் ஒருவர் கண்டு கொண்டனர்.">
+        Some love stories begin with a single glance across a room. Teshwin and Fanny's began somewhere between continents — a Malaysian soul and a French spirit finding in each other exactly what the other never knew they were searching for.
+      </p>
+      <p data-en="From their first conversation, there was a warmth that felt like coming home. Teshwin's quiet tenderness met Fanny's vibrant, open heart, and something undeniable was born. Through distance, through difference, through the gentle navigation of two cultures learning to dance together — they chose each other, again and again."
+         data-fr="Dès leur première conversation, il y avait une chaleur qui ressemblait à un retour à la maison. La tendresse tranquille de Teshwin a rencontré le cœur vibrant et ouvert de Fanny, et quelque chose d'indéniable est né. À travers la distance, à travers la différence — ils se sont choisis, encore et encore."
+         data-ta="முதல் உரையாடலிலிருந்தே வீட்டிற்கு திரும்பியது போன்ற வெப்பம் இருந்தது. தேஷ்வினின் அமைதியான அன்பு ஃபேனியின் துடிப்பான இதயத்தை சந்தித்தது. இரண்டு கலாச்சாரங்கள் ஒன்றாக நடனமாடக் கற்றுக்கொண்டன — அவர்கள் மீண்டும் மீண்டும் ஒருவரை ஒருவர் தேர்ந்தெடுத்தனர்.">
+        From their first conversation, there was a warmth that felt like coming home. Teshwin's quiet tenderness met Fanny's vibrant, open heart, and something undeniable was born. Through distance, through difference, through the gentle navigation of two cultures learning to dance together — they chose each other, again and again.
+      </p>
+      <p data-en="Today, their story lives in the Netherlands, where sambal meets baguette on the breakfast table, where Tamil love songs play beside French chansons, and where every day is proof that love does not need a single language to be perfectly understood."
+         data-fr="Aujourd'hui, leur histoire se vit aux Pays-Bas, où le sambal rencontre la baguette sur la table du petit-déjeuner, où les chansons d'amour tamoules s'entremêlent aux chansons françaises, et où chaque jour est la preuve que l'amour n'a pas besoin d'une seule langue pour être parfaitement compris."
+         data-ta="இன்று அவர்களின் கதை நெதர்லாந்தில் வாழ்கிறது. காலை உணவு மேசையில் சம்பல் பாகெட்டை சந்திக்கிறது. தமிழ் காதல் பாடல்கள் பிரெஞ்சு இசையோடு கலைகின்றன. ஒவ்வொரு நாளும் காதலுக்கு ஒரே மொழி தேவையில்லை என்பதற்கான சாட்சியம்.">
+        Today, their story lives in the Netherlands, where sambal meets baguette on the breakfast table, where Tamil love songs play beside French chansons, and where every day is proof that love does not need a single language to be perfectly understood.
+      </p>
+      <p data-en="On the 26th of February 2028, on the golden shores of Port Dickson, they invite you to witness the next beautiful chapter."
+         data-fr="Le 26 février 2028, sur les rives dorées de Port Dickson, ils vous invitent à être témoins du prochain et magnifique chapitre de leur vie."
+         data-ta="26 பிப்ரவரி 2028 அன்று, போர்ட் டிக்சனின் பொன்னிற கரையில், அவர்கள் அழகிய அடுத்த அத்தியாயத்திற்கு உங்களை சாட்சியாக அழைக்கிறார்கள்.">
+        On the 26th of February 2028, on the golden shores of Port Dickson, they invite you to witness the next beautiful chapter.
+      </p>
+    </div>
+    <div class="story-aside">
+      <p class="story-quote"
+         data-en='"Two cultures, one love — and an entire world made richer for it."'
+         data-fr='"Deux cultures, un seul amour — et un monde entier rendu plus riche pour cela."'
+         data-ta='"இரண்டு கலாச்சாரங்கள், ஒரே காதல் — இதனால் உலகம் மேலும் வளமானது."'>
+        "Two cultures, one love — and an entire world made richer for it."
+      </p>
+      <span class="story-quote-attr">— Teshwin &amp; Fanny</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     DETAILS BAND
+══════════════════════════════════════ -->
+<div class="details-band">
+  <div class="details-inner reveal">
+    <div class="detail-card">
+      <span class="detail-icon">✦</span>
+      <p class="detail-label" data-en="Date" data-fr="Date" data-ta="தேதி">Date</p>
+      <p class="detail-value"
+         data-en="26 February&lt;br&gt;2028"
+         data-fr="26 Février&lt;br&gt;2028"
+         data-ta="26 பிப்ரவரி&lt;br&gt;2028">26 February<br>2028</p>
+      <p class="detail-sub"
+         data-en="Saturday evening"
+         data-fr="Soirée du samedi"
+         data-ta="சனிக்கிழமை மாலை">Saturday evening</p>
+    </div>
+    <div class="detail-card">
+      <span class="detail-icon">◈</span>
+      <p class="detail-label" data-en="Time" data-fr="Heure" data-ta="நேரம்">Time</p>
+      <p class="detail-value">18h30</p>
+      <p class="detail-sub"
+         data-en="Doors open at 6:00 PM"
+         data-fr="Accueil dès 18h00"
+         data-ta="கதவுகள் மாலை 6:00 மணிக்கு திறக்கும்">Doors open at 6:00 PM</p>
+    </div>
+    <div class="detail-card">
+      <span class="detail-icon">❧</span>
+      <p class="detail-label" data-en="Venue" data-fr="Lieu" data-ta="இடம்">Venue</p>
+      <p class="detail-value">Shore House<br>Port Dickson</p>
+      <p class="detail-sub">7117D, Batu 10.5, Jalan Pantai<br>Pasir Panjang, Negeri Sembilan</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SCHEDULE
+══════════════════════════════════════ -->
+<section id="schedule">
+  <div class="reveal">
+    <p class="section-label"
+       data-en="The evening"
+       data-fr="La soirée"
+       data-ta="நிகழ்வு அட்டவணை">The evening</p>
+    <h2 class="section-title"
+        data-en="Schedule &amp;&lt;br&gt;&lt;em&gt;timeline&lt;/em&gt;"
+        data-fr="Programme &amp;&lt;br&gt;&lt;em&gt;déroulé&lt;/em&gt;"
+        data-ta="நிகழ்ச்சி &amp;&lt;br&gt;&lt;em&gt;அட்டவணை&lt;/em&gt;">Schedule &amp;<br><em>timeline</em></h2>
+  </div>
+  <div class="schedule-list reveal">
+    <div class="schedule-item">
+      <span class="schedule-time">18:00</span>
+      <div>
+        <p class="schedule-name"
+           data-en="Arrival &amp; welcome"
+           data-fr="Arrivée &amp; accueil"
+           data-ta="வருகை &amp; வரவேற்பு">Arrival &amp; welcome</p>
+        <p class="schedule-desc"
+           data-en="Guests arrive and are welcomed with floral garlands and refreshments. Take in the sea breeze and the golden hour light over the Strait of Malacca."
+           data-fr="Les invités arrivent et sont accueillis avec des guirlandes de fleurs et des rafraîchissements. Profitez de la brise marine et de la lumière dorée sur le Détroit de Malacca."
+           data-ta="விருந்தினர்கள் வருகிறார்கள், மலர் மாலைகளும் புத்துணர்ச்சி பானங்களும் கொண்டு வரவேற்கப்படுவார்கள். மலாக்கா கடலிடையின் தங்க நேர வெளிச்சத்தை அனுபவியுங்கள்.">
+          Guests arrive and are welcomed with floral garlands and refreshments. Take in the sea breeze and the golden hour light over the Strait of Malacca.
+        </p>
+      </div>
+    </div>
+    <div class="schedule-item">
+      <span class="schedule-time">18:30</span>
+      <div>
+        <p class="schedule-name"
+           data-en="Wedding ceremony"
+           data-fr="Cérémonie de mariage"
+           data-ta="திருமண சடங்கு">Wedding ceremony</p>
+        <p class="schedule-desc"
+           data-en="The sacred union of Teshwin and Fanny, conducted with traditional Indian wedding rituals in the presence of family and beloved friends."
+           data-fr="L'union sacrée de Teshwin et Fanny, célébrée selon les rituels traditionnels du mariage indien, en présence de la famille et des amis bien-aimés."
+           data-ta="தேஷ்வின் மற்றும் ஃபேனியின் புனித திருமணம், குடும்பத்தினர் மற்றும் அன்பான நண்பர்கள் முன்னிலையில் பாரம்பரிய இந்திய திருமண சடங்குகளுடன் நடைபெறும்.">
+          The sacred union of Teshwin and Fanny, conducted with traditional Indian wedding rituals in the presence of family and beloved friends.
+        </p>
+      </div>
+    </div>
+    <div class="schedule-item">
+      <span class="schedule-time">19:30</span>
+      <div>
+        <p class="schedule-name"
+           data-en="Dinner &amp; celebration"
+           data-fr="Dîner &amp; célébration"
+           data-ta="விருந்து &amp; கொண்டாட்டம்">Dinner &amp; celebration</p>
+        <p class="schedule-desc"
+           data-en="A festive banquet bringing together the flavours of Malaysia and France — a feast as blended and beautiful as the couple themselves."
+           data-fr="Un banquet festif réunissant les saveurs de la Malaisie et de la France — un festin aussi métissé et magnifique que les mariés eux-mêmes."
+           data-ta="மலேசியா மற்றும் பிரான்சின் சுவைகளை ஒன்றிணைக்கும் திருவிழா விருந்து — தம்பதியினரைப் போலவே கலந்த அழகான விருந்து.">
+          A festive banquet bringing together the flavours of Malaysia and France — a feast as blended and beautiful as the couple themselves.
+        </p>
+      </div>
+    </div>
+    <div class="schedule-item">
+      <span class="schedule-time">21:00</span>
+      <div>
+        <p class="schedule-name"
+           data-en="Music, dancing &amp; toasts"
+           data-fr="Musique, danse &amp; discours"
+           data-ta="இசை, நடனம் &amp; வாழ்த்துகள்">Music, dancing &amp; toasts</p>
+        <p class="schedule-desc"
+           data-en="Dance the night away as we celebrate love, laughter, and the magic of two families becoming one. Toasts from family and close friends."
+           data-fr="Dansez toute la nuit pour célébrer l'amour, les rires et la magie de deux familles qui n'en font plus qu'une. Discours de la famille et des amis proches."
+           data-ta="காதல், சிரிப்பு மற்றும் இரண்டு குடும்பங்கள் ஒன்றாகும் மாயத்தை கொண்டாட இரவு முழுவதும் நடனமாடுங்கள். குடும்பத்தினர் மற்றும் நெருங்கிய நண்பர்களிடமிருந்து வாழ்த்துகள்.">
+          Dance the night away as we celebrate love, laughter, and the magic of two families becoming one. Toasts from family and close friends.
+        </p>
+      </div>
+    </div>
+    <div class="schedule-item">
+      <span class="schedule-time">23:30</span>
+      <div>
+        <p class="schedule-name"
+           data-en="Send-off"
+           data-fr="Au revoir des mariés"
+           data-ta="விடைகொடுத்தல்">Send-off</p>
+        <p class="schedule-desc"
+           data-en="Bid the newlyweds farewell under the stars and the sound of the sea."
+           data-fr="Dites au revoir aux jeunes mariés sous les étoiles et au son de la mer."
+           data-ta="நட்சத்திரங்களின் கீழ் மற்றும் கடல் சத்தத்தின் மத்தியில் புதுமணத் தம்பதியினரை வழியனுப்புங்கள்.">
+          Bid the newlyweds farewell under the stars and the sound of the sea.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     DRESS CODE
+══════════════════════════════════════ -->
+<section id="dresscode" style="padding-top:0;">
+  <div class="ornament reveal">✦ ◈ ✦</div>
+  <div class="reveal" style="margin-top:64px;">
+    <p class="section-label"
+       data-en="Attire"
+       data-fr="Tenue vestimentaire"
+       data-ta="உடை விதிமுறை">Attire</p>
+    <h2 class="section-title"
+        data-en="Dress &lt;em&gt;code&lt;/em&gt;"
+        data-fr="Code &lt;em&gt;vestimentaire&lt;/em&gt;"
+        data-ta="உடை &lt;em&gt;விதிமுறை&lt;/em&gt;">Dress <em>code</em></h2>
+  </div>
+  <div class="dresscode-section reveal">
+    <p style="font-family:var(--font-body);font-size:14px;line-height:1.8;color:#4a2a1a;max-width:540px;"
+       data-en="We warmly invite our guests to celebrate in the spirit of the occasion. Traditional Indian and cultural attire is greatly encouraged and deeply appreciated — let's paint the shore in colour!"
+       data-fr="Nous invitons chaleureusement nos invités à célébrer dans l'esprit de l'occasion. Les tenues indiennes traditionnelles et culturelles sont vivement encouragées — peignons le rivage de couleurs !"
+       data-ta="நிகழ்வின் உணர்வில் கொண்டாட விருந்தினர்களை அன்புடன் அழைக்கிறோம். பாரம்பரிய இந்திய மற்றும் கலாச்சார உடைகள் மிகவும் ஊக்குவிக்கப்படுகின்றன — கடற்கரையை நிறங்களால் வண்ணமயமாக்குவோம்!">
+      We warmly invite our guests to celebrate in the spirit of the occasion. Traditional Indian and cultural attire is greatly encouraged and deeply appreciated — let's paint the shore in colour!
+    </p>
+    <div class="dresscode-grid">
+      <div class="dresscode-item">
+        <h4 data-en="Traditional Indian attire"
+            data-fr="Tenue indienne traditionnelle"
+            data-ta="பாரம்பரிய இந்திய உடை">Traditional Indian attire</h4>
+        <p data-en="Sarees, lehengas, salwar kameez, kurtas, sherwanis, and dhotis are all welcome and celebrated. The brighter and more festive, the better."
+           data-fr="Saris, lehengas, salwar kameez, kurtas, sherwanis et dhotis sont tous les bienvenus. Plus c'est coloré et festif, mieux c'est."
+           data-ta="சேலைகள், லேஹங்காக்கள், சல்வார் கமீஸ், குர்தாக்கள், ஷேர்வானிகள் மற்றும் தோத்திகள் அனைத்தும் வரவேற்கப்படுகின்றன. மிகவும் பிரகாசமான மற்றும் திருவிழா உடை இன்னும் சிறந்தது.">
+          Sarees, lehengas, salwar kameez, kurtas, sherwanis, and dhotis are all welcome and celebrated. The brighter and more festive, the better.
+        </p>
+      </div>
+      <div class="dresscode-item">
+        <h4 data-en="Other cultural &amp; formal wear"
+            data-fr="Autres tenues culturelles &amp; formelles"
+            data-ta="பிற கலாச்சார &amp; முறையான உடைகள்">Other cultural &amp; formal wear</h4>
+        <p data-en="Kebaya, baju kurung, French or Western formal wear — all cultural dress is honoured and welcome. Smart casual is the minimum."
+           data-fr="Kebaya, baju kurung, tenue formelle française ou occidentale — toute tenue culturelle est honorée et bienvenue. La tenue chic décontractée est le minimum."
+           data-ta="கெபாயா, பாஜு குருங், பிரெஞ்சு அல்லது மேற்கத்திய முறையான உடைகள் — அனைத்து கலாச்சார உடைகளும் மதிக்கப்படுகின்றன. ஸ்மார்ட் கேஷுவல் குறைந்தபட்சம்.">
+          Kebaya, baju kurung, French or Western formal wear — all cultural dress is honoured and welcome. Smart casual is the minimum.
+        </p>
+      </div>
+      <div class="dresscode-item">
+        <h4 data-en="Colour palette"
+            data-fr="Palette de couleurs"
+            data-ta="நிற தேர்வு">Colour palette</h4>
+        <p data-en="Rich jewel tones, vibrant reds, saffron, royal blue, emerald and gold are encouraged. Please avoid white and black as primary outfit colours."
+           data-fr="Les tons bijoux riches, les rouges vibrants, le safran, le bleu royal, l'émeraude et l'or sont encouragés. Veuillez éviter le blanc et le noir comme couleurs principales."
+           data-ta="செழுமையான நகை நிறங்கள், துடிப்பான சிவப்பு, குங்குமப்பூ, அரச நீலம், மரகதம் மற்றும் தங்கம் ஊக்குவிக்கப்படுகின்றன. வெள்ளை மற்றும் கறுப்பை முதன்மை உடை நிறங்களாக தவிர்க்கவும்.">
+          Rich jewel tones, vibrant reds, saffron, royal blue, emerald and gold are encouraged. Please avoid white and black as primary outfit colours.
+        </p>
+      </div>
+      <div class="dresscode-item">
+        <h4 data-en="Footwear note"
+            data-fr="Note sur les chaussures"
+            data-ta="காலணி குறிப்பு">Footwear note</h4>
+        <p data-en="The ceremony is held on the shorefront. Flat or wedge footwear is recommended for comfort on the sandy grounds."
+           data-fr="La cérémonie se déroule au bord de la mer. Des chaussures plates ou compensées sont recommandées pour le confort sur le sable."
+           data-ta="சடங்கு கடற்கரையில் நடைபெறும். மணல் தரையில் வசதியாக இருக்க தட்டையான அல்லது வெட்ஜ் காலணிகள் பரிந்துரைக்கப்படுகின்றன.">
+          The ceremony is held on the shorefront. Flat or wedge footwear is recommended for comfort on the sandy grounds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     GALLERY
+══════════════════════════════════════ -->
+<section id="gallery">
+  <div class="reveal">
+    <p class="section-label"
+       data-en="Moments"
+       data-fr="Moments"
+       data-ta="தருணங்கள்">Moments</p>
+    <h2 class="section-title"
+        data-en="Photo &lt;em&gt;gallery&lt;/em&gt;"
+        data-fr="Galerie &lt;em&gt;photos&lt;/em&gt;"
+        data-ta="புகைப்பட &lt;em&gt;தொகுப்பு&lt;/em&gt;">Photo <em>gallery</em></h2>
+  </div>
+  <div class="gallery-grid reveal">
+    <div class="gallery-item"><div class="gallery-item-bg"></div><span class="gallery-label" data-en="Add your photo here" data-fr="Ajoutez votre photo ici" data-ta="உங்கள் புகைப்படத்தை சேர்க்கவும்">Add your photo here</span></div>
+    <div class="gallery-item"><div class="gallery-item-bg"></div><span class="gallery-label" data-en="Add your photo here" data-fr="Ajoutez votre photo ici" data-ta="உங்கள் புகைப்படத்தை சேர்க்கவும்">Add your photo here</span></div>
+    <div class="gallery-item"><div class="gallery-item-bg"></div><span class="gallery-label" data-en="Add your photo here" data-fr="Ajoutez votre photo ici" data-ta="உங்கள் புகைப்படத்தை சேர்க்கவும்">Add your photo here</span></div>
+    <div class="gallery-item"><div class="gallery-item-bg"></div><span class="gallery-label" data-en="Add your photo here" data-fr="Ajoutez votre photo ici" data-ta="உங்கள் புகைப்படத்தை சேர்க்கவும்">Add your photo here</span></div>
+  </div>
+  <p style="font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;color:#9a7a6a;text-transform:uppercase;margin-top:20px;text-align:center;"
+     data-en="Replace placeholders with your couple photos in Canva"
+     data-fr="Remplacez les espaces réservés par vos photos de couple dans Canva"
+     data-ta="Canva இல் உங்கள் ஜோடி புகைப்படங்களை சேர்க்கவும்">
+    Replace placeholders with your couple photos in Canva
+  </p>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     RSVP
+══════════════════════════════════════ -->
+<div class="rsvp-section" id="rsvp">
+  <div class="rsvp-inner">
+    <div class="reveal">
+      <p class="section-label"
+         data-en="Join us"
+         data-fr="Rejoignez-nous"
+         data-ta="எங்களுடன் கலந்துகொள்ளுங்கள்">Join us</p>
+      <h2 class="section-title"
+          data-en="Kindly &lt;em&gt;RSVP&lt;/em&gt;"
+          data-fr="Merci de &lt;em&gt;confirmer&lt;/em&gt;"
+          data-ta="தயவுசெய்து &lt;em&gt;உறுதிப்படுத்தவும்&lt;/em&gt;">Kindly <em>RSVP</em></h2>
+      <p class="rsvp-deadline"
+         data-en="Please respond by 26 August 2027"
+         data-fr="Merci de répondre avant le 26 août 2027"
+         data-ta="26 ஆகஸ்ட் 2027 க்குள் பதில் அளிக்கவும்">
+        Please respond by 26 August 2027
+      </p>
+    </div>
+    <div class="rsvp-embed reveal">
+      <div class="rsvp-embed-placeholder">
+        <p data-en="Google Form embed goes here"
+           data-fr="Le formulaire Google s'intègre ici"
+           data-ta="Google படிவம் இங்கே உட்பொதிக்கப்படும்">Google Form embed goes here</p>
+        <code class="embed-code">&lt;iframe
+  src="YOUR_GOOGLE_FORM_EMBED_URL"
+  width="100%"
+  height="600"
+  frameborder="0"
+  marginheight="0"
+  marginwidth="0"&gt;
+  Loading…
+&lt;/iframe&gt;</code>
+        <p style="margin-top:20px;font-size:10px;"
+           data-en="Replace with your Google Form embed link in Canva"
+           data-fr="Remplacez par votre lien d'intégration Google Form dans Canva"
+           data-ta="Canva இல் Google Form இணைப்பை மாற்றவும்">
+          Replace with your Google Form embed link in Canva
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer>
+  <p class="footer-names">Teshwin &amp; Fanny</p>
+  <p class="footer-sub"
+     data-en="26 February 2028 · Shore House, Port Dickson · Malaysia"
+     data-fr="26 Février 2028 · Shore House, Port Dickson · Malaisie"
+     data-ta="26 பிப்ரவரி 2028 · Shore House, Port Dickson · மலேசியா">
+    26 February 2028 · Shore House, Port Dickson · Malaysia
+  </p>
+  <p style="font-family:var(--font-body);font-size:9px;color:rgba(250,245,236,0.15);letter-spacing:0.2em;margin-top:24px;text-transform:uppercase;"
+     data-en="Made with love ✦ Netherlands to Malaysia"
+     data-fr="Fait avec amour ✦ Des Pays-Bas à la Malaisie"
+     data-ta="அன்புடன் உருவாக்கப்பட்டது ✦ நெதர்லாந்திலிருந்து மலேசியாவிற்கு">
+    Made with love ✦ Netherlands to Malaysia
+  </p>
+</footer>
+
+
+<script>
+  // ── SCROLL REVEAL ──
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(r => revealObserver.observe(r));
+
+  // ── MUSIC PLAYER ──
+  const audio = document.getElementById('bg-music');
+  const musicBtn = document.getElementById('music-btn');
+  const iconPlay = document.getElementById('icon-play');
+  const iconPause = document.getElementById('icon-pause');
+  const tooltip = document.getElementById('music-tooltip');
+  let isPlaying = false;
+
+  // Tooltip text per language
+  const musicLabels = {
+    en: { play: 'Play music',  pause: 'Pause music' },
+    fr: { play: 'Jouer',       pause: 'Pause' },
+    ta: { play: 'இசை இயக்கு', pause: 'இடைநிறுத்து' }
+  };
+
+  function toggleMusic() {
+    if (isPlaying) {
+      // Fade out then pause
+      fadeAudio(false, () => { audio.pause(); });
+      iconPlay.style.display = '';
+      iconPause.style.display = 'none';
+      musicBtn.classList.remove('playing');
+      tooltip.textContent = musicLabels[currentLang].play;
+    } else {
+      audio.volume = 0;
+      audio.play().then(() => {
+        fadeAudio(true);
+        iconPlay.style.display = 'none';
+        iconPause.style.display = '';
+        musicBtn.classList.add('playing');
+        tooltip.textContent = musicLabels[currentLang].pause;
+      }).catch(() => {
+        // Autoplay blocked — still update UI so next click works
+        console.log('Autoplay prevented, waiting for user interaction.');
+      });
+    }
+    isPlaying = !isPlaying;
+  }
+
+  function fadeAudio(fadeIn, onComplete) {
+    const target = fadeIn ? 0.55 : 0;
+    const start  = audio.volume;
+    const steps  = 40;
+    const diff   = (target - start) / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      audio.volume = Math.min(1, Math.max(0, start + diff * step));
+      if (step >= steps) {
+        clearInterval(timer);
+        if (onComplete) onComplete();
+      }
+    }, 30);
+  }
+
+  // Update tooltip text when language changes
+  function updateMusicTooltip() {
+    tooltip.textContent = isPlaying
+      ? musicLabels[currentLang].pause
+      : musicLabels[currentLang].play;
+  }
+
+  // ── LANGUAGE SYSTEM ──
+  let currentLang = 'en';
+  const LANGS = ['en', 'fr', 'ta'];
+
+  // Tamil script classes that need font switching
+  const TAMIL_CLASSES = [
+    'hero-pre', 'hero-date', 'hero-scroll',
+    'section-label', 'section-title',
+    'story-text', 'story-quote',
+    'detail-label', 'detail-value', 'detail-sub',
+    'schedule-name', 'schedule-desc',
+    'gallery-label', 'rsvp-deadline', 'footer-sub'
+  ];
+
+  function applyTamilClasses(lang) {
+    // Add/remove .ta class on key elements for font switching
+    TAMIL_CLASSES.forEach(cls => {
+      document.querySelectorAll('.' + cls).forEach(el => {
+        el.classList.toggle('ta', lang === 'ta');
+      });
+    });
+    // Handle dresscode h4 and p elements
+    document.querySelectorAll('.dresscode-item h4, .dresscode-item p').forEach(el => {
+      el.classList.toggle('ta', lang === 'ta');
+    });
+    // Handle dresscode intro p
+    document.querySelectorAll('.dresscode-section > p').forEach(el => {
+      if (lang === 'ta') { el.style.fontFamily = 'var(--font-tamil)'; }
+      else { el.style.fontFamily = ''; }
+    });
+    // Handle gallery note p
+    document.querySelectorAll('#gallery > p').forEach(el => {
+      if (lang === 'ta') { el.style.fontFamily = 'var(--font-tamil)'; }
+      else { el.style.fontFamily = ''; }
+    });
+    // Footer made-with p
+    document.querySelectorAll('footer > p:last-child').forEach(el => {
+      if (lang === 'ta') { el.style.fontFamily = 'var(--font-tamil)'; }
+      else { el.style.fontFamily = ''; }
+    });
+    // RSVP embed p
+    document.querySelectorAll('.rsvp-embed-placeholder p').forEach(el => {
+      if (lang === 'ta') { el.style.fontFamily = 'var(--font-tamil)'; }
+      else { el.style.fontFamily = ''; }
+    });
+  }
+
+  function setLang(lang, fromPopup) {
+    if (lang === currentLang && !fromPopup) return;
+    currentLang = lang;
+
+    // Update toggle buttons
+    LANGS.forEach(l => {
+      const btn = document.getElementById('btn-' + l);
+      if (btn) {
+        btn.classList.toggle('active', l === lang);
+        btn.setAttribute('aria-pressed', String(l === lang));
+      }
+    });
+
+    document.documentElement.lang = lang;
+
+    const els = document.querySelectorAll('[data-en][data-fr][data-ta]');
+
+    // Fade out
+    els.forEach(el => {
+      el.style.transition = 'opacity 0.2s ease';
+      el.style.opacity = '0';
+    });
+
+    setTimeout(() => {
+      els.forEach(el => {
+        const val = el.getAttribute('data-' + lang);
+        if (val !== null) el.innerHTML = val;
+        el.style.opacity = '';
+      });
+      applyTamilClasses(lang);
+      updateMusicTooltip();
+    }, 220);
+  }
+
+  // ── POPUP LOGIC ──
+  function chooseLang(lang) {
+    const overlay = document.getElementById('lang-overlay');
+    overlay.classList.add('hidden');
+    setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    setLang(lang, true);
+  }
+
+  // Show popup on load (slight delay so hero animates first)
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('lang-overlay').style.display = 'flex';
+    }, 600);
+  });
+</script>
+
+</body>
+</html>
