@@ -554,6 +554,9 @@
 <audio id="bg-music" loop preload="auto">
   <source src="music.mp3" type="audio/mpeg">
 </audio>
+<audio id="bg-music-fr" loop preload="auto">
+  <source src="music-fr.mp3" type="audio/mpeg">
+</audio>
 
 <!-- Music play/pause button -->
 <button class="music-btn" id="music-btn" onclick="toggleMusic()" aria-label="Toggle background music">
@@ -1007,10 +1010,10 @@
     26 February 2028 · Shore House, Port Dickson · Malaysia
   </p>
   <p style="font-family:var(--font-body);font-size:9px;color:rgba(250,245,236,0.15);letter-spacing:0.2em;margin-top:24px;text-transform:uppercase;"
-     data-en="Made with love ✦ Netherlands to Malaysia"
-     data-fr="Fait avec amour ✦ Des Pays-Bas à la Malaisie"
-     data-ta="அன்புடன் உருவாக்கப்பட்டது ✦ நெதர்லாந்திலிருந்து மலேசியாவிற்கு">
-    Made with love ✦ Netherlands to Malaysia
+     data-en="Made with love ✦ France to Malaysia"
+     data-fr="Fait avec amour ✦ De la France à la Malaisie"
+     data-ta="அன்புடன் உருவாக்கப்பட்டது ✦ பிரான்சிலிருந்து மலேசியாவிற்கு">
+    Made with love ✦ France to Malaysia
   </p>
 </footer>
 
@@ -1025,11 +1028,13 @@
   document.querySelectorAll('.reveal').forEach(r => revealObserver.observe(r));
 
   // ── MUSIC PLAYER ──
-  const audio = document.getElementById('bg-music');
-  const musicBtn = document.getElementById('music-btn');
-  const iconPlay = document.getElementById('icon-play');
+  const audioDefault = document.getElementById('bg-music');
+  const audioFr      = document.getElementById('bg-music-fr');
+  let   activeAudio  = audioDefault;
+  const musicBtn  = document.getElementById('music-btn');
+  const iconPlay  = document.getElementById('icon-play');
   const iconPause = document.getElementById('icon-pause');
-  const tooltip = document.getElementById('music-tooltip');
+  const tooltip   = document.getElementById('music-tooltip');
   let isPlaying = false;
 
   // Tooltip text per language
@@ -1039,39 +1044,21 @@
     ta: { play: 'இசை இயக்கு', pause: 'இடைநிறுத்து' }
   };
 
-  function toggleMusic() {
-    if (isPlaying) {
-      // Fade out then pause
-      fadeAudio(false, () => { audio.pause(); });
-      iconPlay.style.display = '';
-      iconPause.style.display = 'none';
-      musicBtn.classList.remove('playing');
-      tooltip.textContent = musicLabels[currentLang].play;
-    } else {
-      audio.volume = 0;
-      audio.play().then(() => {
-        fadeAudio(true);
-        iconPlay.style.display = 'none';
-        iconPause.style.display = '';
-        musicBtn.classList.add('playing');
-        tooltip.textContent = musicLabels[currentLang].pause;
-      }).catch(() => {
-        // Autoplay blocked — still update UI so next click works
-        console.log('Autoplay prevented, waiting for user interaction.');
-      });
-    }
-    isPlaying = !isPlaying;
+  // Which audio track to use per language
+  // FR gets its own chanson; EN and TA share the Indian-Western blend
+  function getTrackForLang(lang) {
+    return lang === 'fr' ? audioFr : audioDefault;
   }
 
-  function fadeAudio(fadeIn, onComplete) {
+  function fadeAudio(audioEl, fadeIn, onComplete) {
     const target = fadeIn ? 0.55 : 0;
-    const start  = audio.volume;
+    const start  = audioEl.volume;
     const steps  = 40;
     const diff   = (target - start) / steps;
     let step = 0;
     const timer = setInterval(() => {
       step++;
-      audio.volume = Math.min(1, Math.max(0, start + diff * step));
+      audioEl.volume = Math.min(1, Math.max(0, start + diff * step));
       if (step >= steps) {
         clearInterval(timer);
         if (onComplete) onComplete();
@@ -1079,11 +1066,53 @@
     }, 30);
   }
 
-  // Update tooltip text when language changes
+  function switchTrack(newAudio) {
+    if (newAudio === activeAudio) return;
+    // Fade out old track, swap, fade in new
+    const wasPlaying = isPlaying;
+    if (wasPlaying) {
+      fadeAudio(activeAudio, false, () => {
+        activeAudio.pause();
+        activeAudio.currentTime = 0;
+        activeAudio = newAudio;
+        activeAudio.volume = 0;
+        activeAudio.play().then(() => fadeAudio(activeAudio, true));
+      });
+    } else {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+      activeAudio = newAudio;
+    }
+  }
+
+  function toggleMusic() {
+    if (isPlaying) {
+      fadeAudio(activeAudio, false, () => { activeAudio.pause(); });
+      iconPlay.style.display = '';
+      iconPause.style.display = 'none';
+      musicBtn.classList.remove('playing');
+      tooltip.textContent = musicLabels[currentLang].play;
+    } else {
+      activeAudio.volume = 0;
+      activeAudio.play().then(() => {
+        fadeAudio(activeAudio, true);
+        iconPlay.style.display = 'none';
+        iconPause.style.display = '';
+        musicBtn.classList.add('playing');
+        tooltip.textContent = musicLabels[currentLang].pause;
+      }).catch(() => {
+        console.log('Autoplay prevented — waiting for user interaction.');
+      });
+    }
+    isPlaying = !isPlaying;
+  }
+
+  // Update tooltip + switch track whenever language changes
   function updateMusicTooltip() {
     tooltip.textContent = isPlaying
       ? musicLabels[currentLang].pause
       : musicLabels[currentLang].play;
+    switchTrack(getTrackForLang(currentLang));
   }
 
   // ── LANGUAGE SYSTEM ──
