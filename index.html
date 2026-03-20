@@ -1034,6 +1034,17 @@
     }, 220);
   }
 
+  // ── URL LANGUAGE DETECTION ──
+  // Reads ?lang=fr / ?lang=ta / ?lang=en from the URL on load
+  // Default is English if no param is present
+  (function() {
+    const params  = new URLSearchParams(window.location.search);
+    const urlLang = params.get('lang');
+    if (urlLang && ['en', 'fr', 'ta'].includes(urlLang)) {
+      setLang(urlLang, true);
+    }
+  })();
+
   // ── TALLY DYNAMIC HEIGHT ──
   // Tally posts a message when form height changes (e.g. conditional blocks appear)
   window.addEventListener('message', (e) => {
